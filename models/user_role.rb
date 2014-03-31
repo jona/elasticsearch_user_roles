@@ -6,10 +6,16 @@ class UserRole
 
   property :role_id,             type: 'string', index: 'not_analyzed'
   property :user_id,             type: 'string', index: 'not_analyzed'
-  property :created_at,          type: 'date',   default: Proc.new{ Time.now }
+  property :created_at,          type: 'date', class: Time, default: Proc.new{ Time.now }
 
-  def self.find_by_role_id(id)
-    search(size: 1){ |s| s.query{ |q| q.term :id, id } }.first
+  def self.has_role?(user, id)
+    search(size: 1){ |s| s.query{ |q| q.term :user_id, user.id } }.each do |role|
+      if role.id == id
+        return true
+        break
+      end
+    end
+    false
   end
 
   def self.find_by_user_id(user_id, role)
